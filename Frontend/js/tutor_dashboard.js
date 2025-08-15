@@ -1,3 +1,38 @@
+<<<<<<< HEAD
+=======
+// Mark assignment as done for a student (called when tutor checks/unchecks box)
+function markAssignmentDone(checkbox) {
+  const courseId = checkbox.getAttribute('data-course');
+  const studentEmail = checkbox.getAttribute('data-student');
+  const assignmentTitle = checkbox.getAttribute('data-assignment');
+  const done = checkbox.checked;
+  const token = localStorage.getItem('jwt');
+  if (!courseId || !studentEmail || !assignmentTitle || !token) return;
+  fetch(`http://localhost:8080/api/courses/${courseId}/students/${studentEmail}/assignments`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ assignmentTitle, done })
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        checkbox.parentNode.style.color = '#4caf50';
+        // Optionally refresh UI or show progress
+      } else {
+        checkbox.parentNode.style.color = 'red';
+        alert(result.message || 'Error updating assignment status');
+      }
+    })
+    .catch(err => {
+      checkbox.parentNode.style.color = 'red';
+      alert('Network error updating assignment status');
+      console.error(err);
+    });
+}
+>>>>>>> 4721422 (Added latest module updates)
 // Add a new video input field
 function addVideoField(courseId) {
   const container = document.getElementById(`videoFields_${courseId}`);
@@ -34,6 +69,18 @@ function addDocField(courseId) {
   container.appendChild(div);
 }
 
+<<<<<<< HEAD
+=======
+// Add a new assignment input field
+function addAssignmentField(courseId) {
+  const container = document.getElementById(`assignmentFields_${courseId}`);
+  const div = document.createElement('div');
+  div.className = 'assignment-field';
+  div.innerHTML = `<input type="text" name="assignmentTitle" placeholder="Assignment Title"> <input type="text" name="assignmentLink" placeholder="Assignment Link">`;
+  container.appendChild(div);
+}
+
+>>>>>>> 4721422 (Added latest module updates)
 
 // Handle resource form submission for a course
 function submitResourceForm(event, courseId) {
@@ -54,6 +101,16 @@ function submitResourceForm(event, courseId) {
     const link = div.querySelector('input[name="docLink"]')?.value.trim();
     return title && link ? [title, link] : null;
   }).filter(Boolean);
+<<<<<<< HEAD
+=======
+  // Collect assignment fields (pair by parent div)
+  const assignmentFields = Array.from(form.querySelectorAll('.assignment-field'));
+  const assignments = assignmentFields.map(div => {
+    const title = div.querySelector('input[name="assignmentTitle"]')?.value.trim();
+    const link = div.querySelector('input[name="assignmentLink"]')?.value.trim();
+    return title && link ? [title, link] : null;
+  }).filter(Boolean);
+>>>>>>> 4721422 (Added latest module updates)
     // Collect quiz fields
     const quizFields = Array.from(form.querySelectorAll('.quiz-field'));
     const quizzes = quizFields.map(div => {
@@ -63,7 +120,11 @@ function submitResourceForm(event, courseId) {
       return question && options.length > 1 && answer ? { question, options, answer } : null;
     }).filter(Boolean);
   // Only one resources declaration
+<<<<<<< HEAD
   const resources = { video: videos, docs: docs, quizzes: quizzes };
+=======
+  const resources = { video: videos, docs: docs, assignments: assignments, quizzes: quizzes };
+>>>>>>> 4721422 (Added latest module updates)
   fetch(`http://localhost:8080/api/tutor/courses/${courseId}/resources`, {
     method: 'PUT',
     headers: {
@@ -122,6 +183,7 @@ function showAssignedCourses() {
         html += '<ul>';
         courses.forEach(course => {
           html += `<li><strong>${course.title}</strong> - ${course.description}<br>`;
+<<<<<<< HEAD
           if (course.extra && course.extra.video) {
             html += '<b>Videos:</b><ul>';
             course.extra.video.forEach(([title, link]) => {
@@ -152,6 +214,34 @@ function showAssignedCourses() {
             });
           }
           html += '</li>';
+=======
+          // Show enrolled students and assignment marking UI
+          if (course.extra && Array.isArray(course.extra.students) && course.extra.students.length > 0) {
+            html += '<b>Enrolled Students:</b><ul>';
+            course.extra.students.forEach(student => {
+              html += `<li>${student.name || student.email}`;
+              // Show assignments for this student
+              if (course.extra.assignments && Array.isArray(course.extra.assignments)) {
+                html += '<ul>';
+                course.extra.assignments.forEach(([title, link], idx) => {
+                  // Check if assignment is done for this student
+                  const doneAssignments = Array.isArray(student.assignmentsDone) ? student.assignmentsDone : [];
+                  const isDone = doneAssignments.includes(title);
+                  html += `<li>
+                    ${title}: <a href="${link}" target="_blank">${link}</a>
+                    <label style="margin-left:10px;"><input type="checkbox" data-course="${course.id}" data-student="${student.email}" data-assignment="${title}" ${isDone ? 'checked' : ''} onchange="markAssignmentDone(this)"> Done</label>
+                  </li>`;
+                });
+                html += '</ul>';
+              }
+              html += '</li>';
+            });
+            html += '</ul>';
+          } else {
+            html += '<i>No students enrolled yet.</i>';
+          }
+          html += '<hr>';
+>>>>>>> 4721422 (Added latest module updates)
         });
         html += '</ul>';
       }
@@ -170,6 +260,15 @@ function showAssignedCourses() {
             docFields += `<div class="doc-field"><input type="text" name="docTitle" placeholder="Doc Title" value="${title}"> <input type="text" name="docLink" placeholder="Doc Link" value="${link}"></div>`;
           });
         }
+<<<<<<< HEAD
+=======
+        let assignmentFields = '';
+        if (course.extra && course.extra.assignments) {
+          course.extra.assignments.forEach(([title, link], idx) => {
+            assignmentFields += `<div class="assignment-field"><input type="text" name="assignmentTitle" placeholder="Assignment Title" value="${title}"> <input type="text" name="assignmentLink" placeholder="Assignment Link" value="${link}"></div>`;
+          });
+        }
+>>>>>>> 4721422 (Added latest module updates)
         let quizFields = '';
         if (course.extra && course.extra.quizzes) {
           course.extra.quizzes.forEach((quiz, idx) => {
@@ -194,6 +293,12 @@ function showAssignedCourses() {
             <label>Docs:</label><br>
             <div id="docFields_${course.id}">${docFields}</div>
             <button type="button" onclick="addDocField('${course.id}')">Add Doc</button><br><br>
+<<<<<<< HEAD
+=======
+            <label>Assignments:</label><br>
+            <div id="assignmentFields_${course.id}">${assignmentFields}</div>
+            <button type="button" onclick="addAssignmentField('${course.id}')">Add Assignment</button><br><br>
+>>>>>>> 4721422 (Added latest module updates)
           <label>Quizzes:</label><br>
           <div id="quizFields_${course.id}">${quizFields}</div>
           <button type="button" onclick="addQuizField('${course.id}')">Add Quiz</button><br><br>
